@@ -14,7 +14,117 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      colaboradores: {
+        Row: {
+          ativo: boolean
+          cargo: string | null
+          created_at: string
+          data_admissao: string
+          id: string
+          nome: string
+          setor: string | null
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          cargo?: string | null
+          created_at?: string
+          data_admissao: string
+          id?: string
+          nome: string
+          setor?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          cargo?: string | null
+          created_at?: string
+          data_admissao?: string
+          id?: string
+          nome?: string
+          setor?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      exames: {
+        Row: {
+          colaborador_id: string
+          created_at: string
+          data_realizacao: string
+          data_vencimento: string
+          id: string
+          observacoes: string | null
+          status: string
+          tipo_exame_id: string
+          updated_at: string
+        }
+        Insert: {
+          colaborador_id: string
+          created_at?: string
+          data_realizacao: string
+          data_vencimento: string
+          id?: string
+          observacoes?: string | null
+          status?: string
+          tipo_exame_id: string
+          updated_at?: string
+        }
+        Update: {
+          colaborador_id?: string
+          created_at?: string
+          data_realizacao?: string
+          data_vencimento?: string
+          id?: string
+          observacoes?: string | null
+          status?: string
+          tipo_exame_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exames_colaborador_id_fkey"
+            columns: ["colaborador_id"]
+            isOneToOne: false
+            referencedRelation: "colaboradores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exames_tipo_exame_id_fkey"
+            columns: ["tipo_exame_id"]
+            isOneToOne: false
+            referencedRelation: "tipos_exames"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tipos_exames: {
+        Row: {
+          created_at: string
+          descricao: string | null
+          dias_alerta: number
+          id: string
+          nome: string
+          validade_meses: number
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string | null
+          dias_alerta?: number
+          id?: string
+          nome: string
+          validade_meses?: number
+        }
+        Update: {
+          created_at?: string
+          descricao?: string | null
+          dias_alerta?: number
+          id?: string
+          nome?: string
+          validade_meses?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
