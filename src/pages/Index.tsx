@@ -1,12 +1,41 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import { Navigation } from "@/components/Navigation";
+import { Dashboard } from "@/components/Dashboard";
+import { ColaboradorForm } from "@/components/ColaboradorForm";
+import { ColaboradoresList } from "@/components/ColaboradoresList";
+import { ExameForm } from "@/components/ExameForm";
+import { ExamesList } from "@/components/ExamesList";
 
 const Index = () => {
+  const [currentView, setCurrentView] = useState('dashboard');
+
+  const renderContent = () => {
+    switch (currentView) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'colaboradores':
+        return (
+          <div className="space-y-6">
+            <ColaboradorForm />
+            <ColaboradoresList />
+          </div>
+        );
+      case 'exames':
+        return <ExameForm />;
+      case 'lista-exames':
+        return <ExamesList />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Navigation currentView={currentView} onViewChange={setCurrentView} />
+      
+      <main className="md:ml-64 p-6">
+        {renderContent()}
+      </main>
     </div>
   );
 };
