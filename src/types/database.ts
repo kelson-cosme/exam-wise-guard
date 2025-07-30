@@ -13,7 +13,6 @@ export interface TipoExame {
   id: string;
   nome: string;
   descricao?: string;
-  validade_meses: number;
   dias_alerta: number;
   created_at: string;
 }
@@ -24,6 +23,7 @@ export interface Exame {
   tipo_exame_id: string;
   data_realizacao: string;
   data_vencimento: string;
+  validade_dias?: number;
   observacoes?: string;
   status: 'válido' | 'vencido' | 'próximo_vencimento';
   created_at: string;

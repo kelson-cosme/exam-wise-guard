@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Home, Users, FileText, Calendar, Menu, X } from "lucide-react";
+import { Home, Users, FileText, Calendar, Menu, X, Settings } from "lucide-react"; // 1. Adicione o ícone "Settings"
 import { cn } from "@/lib/utils";
 
 interface NavigationProps {
@@ -16,7 +16,8 @@ export const Navigation = ({ currentView, onViewChange }: NavigationProps) => {
     { id: 'colaboradores', label: 'Colaboradores', icon: Users },
     { id: 'exames', label: 'Registrar Exame', icon: FileText },
     { id: 'lista-exames', label: 'Lista de Exames', icon: Calendar },
-  ];
+    { id: 'tipos-exames', label: 'Tipos de Exame', icon: Settings }, // 2. Adicione esta linha
+  ]
 
   const handleViewChange = (view: string) => {
     onViewChange(view);

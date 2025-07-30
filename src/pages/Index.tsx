@@ -5,6 +5,8 @@ import { ColaboradorForm } from "@/components/ColaboradorForm";
 import { ColaboradoresList } from "@/components/ColaboradoresList";
 import { ExameForm } from "@/components/ExameForm";
 import { ExamesList } from "@/components/ExamesList";
+import { TipoExameForm } from "@/components/TipoExameForm"; // 1. Importe os novos componentes
+import { TiposExamesList } from "@/components/TiposExamesList";
 
 const Index = () => {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -24,6 +26,13 @@ const Index = () => {
         return <ExameForm />;
       case 'lista-exames':
         return <ExamesList />;
+      case 'tipos-exames': // Adicione este novo case
+        return (
+          <div className="space-y-6">
+            <TipoExameForm />
+            <TiposExamesList />
+          </div>
+        );
       default:
         return <Dashboard />;
     }

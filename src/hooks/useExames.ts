@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Exame, ExameComDetalhes } from '@/types/database';
+import { Exame, ExameComDetalhes, TipoExame } from '@/types/database';
 import { toast } from '@/hooks/use-toast';
 
 export const useExames = () => {
@@ -131,6 +131,39 @@ export const useTiposExames = () => {
       }
       
       return data;
+    },
+  });
+};
+
+// ADICIONE ESTA NOVA FUNÇÃO
+export const useCreateTipoExame = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (tipoExame: Omit<TipoExame, 'id' | 'created_at' | 'validade_dias'>) => {
+      // @ts-ignore
+      const { data, error } = await supabase
+        .from('tipos_exames')
+        .insert([tipoExame])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tipos-exames'] });
+      toast({
+        title: "Sucesso",
+        description: "Tipo de exame cadastrado com sucesso!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: `Erro ao cadastrar tipo de exame: ${error.message}`,
+        variant: "destructive",
+      });
     },
   });
 };
