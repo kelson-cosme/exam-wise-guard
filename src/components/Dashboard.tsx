@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, Calendar, Users, FileText } from "lucide-react";
+import { AlertTriangle, Calendar, Users, FileText, CircleDollarSign } from "lucide-react";
 import { useExames, useExamesProximosVencimento } from "@/hooks/useExames";
 import { useColaboradores } from "@/hooks/useColaboradores";
 
@@ -14,13 +14,23 @@ export const Dashboard = () => {
   const examesVencidos = exames?.filter(e => e.status === 'vencido').length || 0;
   const examesProximosVencimento = exames?.filter(e => e.status === 'próximo_vencimento').length || 0;
   const colaboradoresAtivos = colaboradores?.length || 0;
+  
+
+  // 1. Calcular o valor total dos exames
+  const valorTotalExames = exames?.reduce((acc, exame) => acc + (exame.valor || 0), 0) || 0;
+
+  // 2. Formatar o valor para moeda brasileira
+  const valorFormatado = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(valorTotalExames);
 
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold">Dashboard - Controle de Exames</h1>
       
       {/* Cards de Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -66,6 +76,18 @@ export const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">{examesVencidos}</div>
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-1">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Custo Total
+            </CardTitle>
+            <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{valorFormatado}</div>
           </CardContent>
         </Card>
       </div>

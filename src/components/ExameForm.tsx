@@ -21,7 +21,7 @@ export const ExameForm = ({ exame, onFinish }: ExameFormProps) => {
   const [dataVencimento, setDataVencimento] = useState("");
   const [validadeDias, setValidadeDias] = useState("");
   const [observacoes, setObservacoes] = useState("");
-
+  const [valor, setValor] = useState(""); // 1. Adicionar novo estado para o valor
   const { data: colaboradores } = useColaboradores();
   const { data: tiposExames } = useTiposExames();
   const createExame = useCreateExame();
@@ -37,6 +37,7 @@ export const ExameForm = ({ exame, onFinish }: ExameFormProps) => {
       setDataVencimento(new Date(exame.data_vencimento).toISOString().split('T')[0]);
       setValidadeDias(String(exame.validade_dias || ""));
       setObservacoes(exame.observacoes || "");
+      setValor(String(exame.valor || "")); 
     }
   }, [exame, isEditing]);
 
@@ -59,6 +60,7 @@ export const ExameForm = ({ exame, onFinish }: ExameFormProps) => {
       data_vencimento: dataVencimento,
       validade_dias: parseInt(validadeDias, 10),
       observacoes: observacoes || undefined,
+      valor: valor ? parseFloat(valor) : undefined, // 3. Incluir o valor no objeto
     };
 
     if (isEditing) {
@@ -74,6 +76,8 @@ export const ExameForm = ({ exame, onFinish }: ExameFormProps) => {
           setDataVencimento("");
           setObservacoes("");
           setValidadeDias("");
+          setValor(""); 
+
         }
       });
     }
@@ -115,6 +119,19 @@ export const ExameForm = ({ exame, onFinish }: ExameFormProps) => {
             <div className="space-y-2">
               <Label htmlFor="dataVencimento">Data de Vencimento *</Label>
               <Input id="dataVencimento" type="date" value={dataVencimento} readOnly className="bg-muted" />
+            </div>
+
+            {/* 5. Adicionar o novo campo de input para o valor */}
+            <div className="space-y-2">
+              <Label htmlFor="valor">Valor do Exame (R$)</Label>
+              <Input
+                id="valor"
+                type="number"
+                placeholder="Ex: 150.00"
+                step="0.01"
+                value={valor}
+                onChange={(e) => setValor(e.target.value)}
+              />
             </div>
           </div>
           <div className="space-y-2">

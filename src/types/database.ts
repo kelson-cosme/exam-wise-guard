@@ -25,13 +25,13 @@ export interface Exame {
   data_vencimento: string;
   validade_dias?: number;
   observacoes?: string;
+  valor?: number | null; // ADICIONE ESTA LINHA
   status: 'válido' | 'vencido' | 'próximo_vencimento';
   created_at: string;
   updated_at: string;
   colaboradores?: Colaborador;
   tipos_exames?: TipoExame;
 }
-
 export interface ExameComDetalhes extends Exame {
   colaborador_nome: string;
   tipo_exame_nome: string;
