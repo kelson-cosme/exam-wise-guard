@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Home, Users, FileText, Calendar, Menu, X, Settings, LayoutDashboard, ChevronsLeft } from "lucide-react";
+// CORREÇÃO: Adicionado ChevronsLeft e ClipboardList à importação
+import { Home, Users, FileText, Calendar, Menu, X, Settings, LayoutDashboard, ChevronsLeft, ClipboardList } from "lucide-react"; 
 import { cn } from "@/lib/utils";
 
 interface NavigationProps {
@@ -21,6 +22,7 @@ export const Navigation = ({ currentView, onViewChange, isCollapsed, toggleColla
     { id: 'exames', label: 'Registrar Exame', icon: FileText },
     { id: 'lista-exames', label: 'Lista de Exames', icon: Calendar },
     { id: 'tipos-exames', label: 'Tipos de Exame', icon: Settings },
+    { id: 'procedimentos', label: 'Procedimentos', icon: ClipboardList },
   ];
 
   const handleViewChange = (view: string) => {
@@ -44,9 +46,7 @@ export const Navigation = ({ currentView, onViewChange, isCollapsed, toggleColla
       {/* Barra de Navegação */}
       <nav className={cn(
         "fixed left-0 top-0 h-full bg-card border-r flex flex-col transition-[width] duration-300 ease-in-out z-40",
-        // Estilos para mobile (escondido/mostrado)
         isMobileMenuOpen ? "translate-x-0 w-64" : "-translate-x-full w-64",
-        // Estilos para desktop (recolhido/expandido)
         "md:translate-x-0",
         isCollapsed ? "md:w-20" : "md:w-64"
       )}>

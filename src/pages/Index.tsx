@@ -8,7 +8,9 @@ import { ExamesList } from "@/components/ExamesList";
 import { TipoExameForm } from "@/components/TipoExameForm";
 import { TiposExamesList } from "@/components/TiposExamesList";
 import { DashboardDetalhado } from "@/components/DashboardDetalhado";
+import { ProcedimentoForm } from "@/components/ProcedimentoForm"; // Importe os novos componentes
 import { cn } from "@/lib/utils";
+import { ProcedimentosList } from "@/components/ProcedimentosList";
 
 const Index = () => {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -36,6 +38,13 @@ const Index = () => {
           <div className="space-y-6">
             <TipoExameForm />
             <TiposExamesList />
+          </div>
+        );
+        case 'procedimentos': // Adicione este novo case
+        return (
+          <div className="space-y-6">
+            <ProcedimentoForm />
+            <ProcedimentosList />
           </div>
         );
       default:

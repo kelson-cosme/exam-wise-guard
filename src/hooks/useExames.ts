@@ -14,14 +14,12 @@ export const useExames = () => {
         .select(`
           *,
           colaboradores (*),
-          tipos_exames (*) 
+          tipos_exames (*),
+          procedimentos (*)
         `)
         .order('data_vencimento');
       
-      if (error) {
-        toast({ title: "Erro", description: "Erro ao carregar exames", variant: "destructive" });
-        throw error;
-      }
+      if (error) throw error;
       
       const examesComDetalhes: ExameComDetalhes[] = data.map(exame => {
         const dataVencimento = new Date(exame.data_vencimento);
@@ -42,6 +40,11 @@ export const useExames = () => {
     },
   });
 };
+
+// Interface para o formulário
+interface ExameFormData extends Omit<Exame, 'id' | 'created_at' | 'updated_at' | 'status'> {
+  procedimento_ids?: string[];
+}
 
 // ... (o restante do arquivo permanece exatamente igual)
 
@@ -64,14 +67,29 @@ export const useExamesProximosVencimento = () => {
 export const useCreateExame = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (exame: Omit<Exame, 'id' | 'created_at' | 'updated_at' | 'status'>) => {
-      const { data, error } = await supabase.from('exames').insert([exame]).select().single();
-      if (error) throw error;
-      return data;
+    mutationFn: async ({ procedimento_ids, ...exameData }: ExameFormData) => {
+      // 1. Insere o exame e obtém o ID
+      const { data: newExame, error: exameError } = await supabase
+        .from('exames')
+        .insert(exameData)
+        .select()
+        .single();
+
+      if (exameError) throw exameError;
+
+      // 2. Se houver procedimentos selecionados, insere na tabela de ligação
+      if (procedimento_ids && procedimento_ids.length > 0) {
+        const links = procedimento_ids.map(procId => ({
+          exame_id: newExame.id,
+          procedimento_id: procId,
+        }));
+        const { error: linkError } = await supabase.from('exames_procedimentos').insert(links);
+        if (linkError) throw linkError;
+      }
+      return newExame;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['exames'] });
-      queryClient.invalidateQueries({ queryKey: ['exames-proximos-vencimento'] });
       toast({ title: "Sucesso", description: "Exame cadastrado com sucesso!" });
     },
     onError: (error) => toast({ title: "Erro", description: `Erro ao cadastrar exame: ${error.message}`, variant: "destructive" }),

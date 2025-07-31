@@ -28,12 +28,21 @@ export const DashboardDetalhado = () => {
 
   const isLoading = loadingColaboradores || loadingTiposExames || loadingExames;
 
-  // Estrutura os dados para facilitar a busca
-  const examesPorColaborador = exames?.reduce((acc, exame) => {
-    const key = `${exame.colaborador_id}-${exame.tipo_exame_id}`;
-    acc[key] = exame;
-    return acc;
-  }, {} as Record<string, typeof exames[number]>);
+  // LÓGICA ATUALIZADA:
+  // Estrutura os dados para garantir que apenas o exame mais recente de cada tipo seja exibido por colaborador.
+  const examesPorColaborador = React.useMemo(() => {
+    return exames?.reduce((acc, exame) => {
+      const key = `${exame.colaborador_id}-${exame.tipo_exame_id}`;
+      const existingExame = acc[key];
+
+      // Se não houver exame para essa combinação, ou se o novo exame for mais recente, armazene-o.
+      if (!existingExame || new Date(exame.data_vencimento) > new Date(existingExame.data_vencimento)) {
+        acc[key] = exame;
+      }
+      
+      return acc;
+    }, {} as Record<string, typeof exames[number]>);
+  }, [exames]);
 
 
   if (isLoading) {
@@ -45,17 +54,24 @@ export const DashboardDetalhado = () => {
       <CardHeader>
         <CardTitle>Dashboard Detalhado</CardTitle>
         <CardDescription>
-          Visão geral completa dos exames de todos os colaboradores.
+          Visão geral com o status mais recente dos exames de todos os colaboradores.
         </CardDescription>
+                  {/* Legenda */}
+          <div className="flex justify-start items-center space-x-4 mb-4 text-sm text-muted-foreground">
+            <div className="flex items-center"><div className="h-3 w-3 rounded-full bg-green-500 mr-2"></div>Exames em dia</div>
+            <div className="flex items-center"><div className="h-3 w-3 rounded-full bg-yellow-500 mr-2"></div>Exames a vencer</div>
+            <div className="flex items-center"><div className="h-3 w-3 rounded-full bg-red-500 mr-2"></div>Exames vencidos</div>
+          </div>
+
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto border rounded-lg">
           <Table className="min-w-full divide-y divide-gray-200 border-collapse">
             <TableHeader className="bg-muted/50">
               <TableRow>
-                <TableHead className="sticky left-0 bg-muted/50 z-10 border-b border-r w-48">Colaborador</TableHead>
-                <TableHead className="border-b border-r">Admissão</TableHead>
-                <TableHead className="border-b border-r">Função</TableHead>
+                <TableHead className="sticky left-0 bg-muted/50 z-10 border-b border-r w-48 whitespace-nowrap">Colaborador</TableHead>
+                <TableHead className="border-b border-r whitespace-nowrap">Admissão</TableHead>
+                <TableHead className="border-b border-r whitespace-nowrap">Função</TableHead>
                 {tiposExames?.map(tipo => (
                   <TableHead key={tipo.id} className="text-center border-b border-r" colSpan={2}>{tipo.nome}</TableHead>
                 ))}
@@ -66,8 +82,8 @@ export const DashboardDetalhado = () => {
                 <TableHead className="border-r"></TableHead>
                 {tiposExames?.map(tipo => (
                   <React.Fragment key={`${tipo.id}-sub`}>
-                    <TableHead className="text-center border-b">Validade</TableHead>
-                    <TableHead className="text-center border-b border-r">Dias</TableHead>
+                    <TableHead className="text-center border-b whitespace-nowrap">Validade</TableHead>
+                    <TableHead className="text-center border-b border-r whitespace-nowrap">Dias</TableHead>
                   </React.Fragment>
                 ))}
               </TableRow>
@@ -75,10 +91,10 @@ export const DashboardDetalhado = () => {
             <TableBody>
               {colaboradores?.map(colaborador => (
                 <TableRow key={colaborador.id} className="hover:bg-muted/20">
-                  <TableCell className="border-r">{new Date(colaborador.data_admissao).toLocaleDateString('pt-BR')}</TableCell>
                   <TableCell className="font-medium sticky left-0 bg-background hover:bg-muted/20 z-10 border-r whitespace-nowrap">
                     {colaborador.nome}
                   </TableCell>
+                  <TableCell className="border-r whitespace-nowrap">{new Date(colaborador.data_admissao).toLocaleDateString('pt-BR')}</TableCell>
                   <TableCell className="border-r whitespace-nowrap">{colaborador.cargo}</TableCell>
                   {tiposExames?.map(tipo => {
                     const exame = examesPorColaborador?.[`${colaborador.id}-${tipo.id}`];

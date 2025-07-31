@@ -17,10 +17,17 @@ export interface TipoExame {
   created_at: string;
 }
 
+export interface Procedimento {
+  id: string;
+  nome: string;
+  descricao?: string;
+  created_at: string;
+}
 export interface Exame {
   id: string;
   colaborador_id: string;
   tipo_exame_id: string;
+  natureza?: string | null;
   data_realizacao: string;
   data_vencimento: string;
   validade_dias?: number;
@@ -31,6 +38,7 @@ export interface Exame {
   updated_at: string;
   colaboradores?: Colaborador;
   tipos_exames?: TipoExame;
+  procedimentos?: Procedimento[]; // Adicione esta linha
 }
 export interface ExameComDetalhes extends Exame {
   colaborador_nome: string;
