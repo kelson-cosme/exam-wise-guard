@@ -1,41 +1,155 @@
-import { useState } from "react";
+// import { useState } from "react";
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+// import { Textarea } from "@/components/ui/textarea";
+// import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+// import { useCreateTipoExame } from "@/hooks/useExames";
+
+// export const TipoExameForm = () => {
+//   const [nome, setNome] = useState("");
+//   const [descricao, setDescricao] = useState("");
+//   const [diasAlerta, setDiasAlerta] = useState("");
+
+//   const createTipoExame = useCreateTipoExame();
+
+//   const handleSubmit = (e: React.FormEvent) => {
+//     e.preventDefault();
+//     if (!nome || !diasAlerta) return;
+
+//     createTipoExame.mutate({
+//       nome,
+//       descricao: descricao || undefined,
+//       dias_alerta: parseInt(diasAlerta, 10),
+//     });
+
+//     if (createTipoExame.isSuccess) {
+//       setNome("");
+//       setDescricao("");
+//       setDiasAlerta("");
+//     }
+//   };
+
+//   return (
+//     <Card>
+//       <CardHeader>
+//         <CardTitle>Cadastrar Tipo de Exame</CardTitle>
+//         <CardDescription>
+//           Adicione um novo tipo de exame, como "ASO" ou "Trabalho em Altura".
+//         </CardDescription>
+//       </CardHeader>
+//       <CardContent>
+//         <form onSubmit={handleSubmit} className="space-y-4">
+//           <div className="space-y-2">
+//             <Label htmlFor="nome">Nome do Exame *</Label>
+//             <Input
+//               id="nome"
+//               type="text"
+//               placeholder="Ex: Exame Demissional"
+//               value={nome}
+//               onChange={(e) => setNome(e.target.value)}
+//               required
+//             />
+//           </div>
+//           <div className="space-y-2">
+//             <Label htmlFor="diasAlerta">Alerta de Vencimento (dias) *</Label>
+//             <Input
+//               id="diasAlerta"
+//               type="number"
+//               placeholder="Ex: 30"
+//               value={diasAlerta}
+//               onChange={(e) => setDiasAlerta(e.target.value)}
+//               required
+//             />
+//           </div>
+//           <div className="space-y-2">
+//             <Label htmlFor="descricao">Descrição</Label>
+//             <Textarea
+//               id="descricao"
+//               placeholder="Descreva brevemente o tipo de exame..."
+//               value={descricao}
+//               onChange={(e) => setDescricao(e.target.value)}
+//               rows={3}
+//             />
+//           </div>
+//           <Button
+//             type="submit"
+//             className="w-full"
+//             disabled={createTipoExame.isPending}
+//           >
+//             {createTipoExame.isPending ? "Cadastrando..." : "Cadastrar Tipo de Exame"}
+//           </Button>
+//         </form>
+//       </CardContent>
+//     </Card>
+//   );
+// };
+
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useCreateTipoExame } from "@/hooks/useExames";
+import { useCreateTipoExame, useUpdateTipoExame } from "@/hooks/useExames";
+import { TipoExame } from "@/types/database";
 
-export const TipoExameForm = () => {
+interface TipoExameFormProps {
+  tipoExame?: TipoExame | null;
+  onFinish?: () => void; // Para fechar o dialog após a edição
+}
+
+export const TipoExameForm = ({ tipoExame, onFinish }: TipoExameFormProps) => {
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
   const [diasAlerta, setDiasAlerta] = useState("");
 
   const createTipoExame = useCreateTipoExame();
+  const updateTipoExame = useUpdateTipoExame();
+
+  const isEditing = !!tipoExame;
+
+  useEffect(() => {
+    if (isEditing) {
+      setNome(tipoExame.nome);
+      setDescricao(tipoExame.descricao || "");
+      setDiasAlerta(String(tipoExame.dias_alerta));
+    }
+  }, [tipoExame, isEditing]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!nome || !diasAlerta) return;
 
-    createTipoExame.mutate({
+    const values = {
       nome,
       descricao: descricao || undefined,
       dias_alerta: parseInt(diasAlerta, 10),
-    });
+    };
 
-    if (createTipoExame.isSuccess) {
-      setNome("");
-      setDescricao("");
-      setDiasAlerta("");
+    if (isEditing) {
+      updateTipoExame.mutate({ id: tipoExame.id, ...values }, {
+        onSuccess: () => {
+          onFinish?.();
+        }
+      });
+    } else {
+      createTipoExame.mutate(values, {
+        onSuccess: () => {
+          setNome("");
+          setDescricao("");
+          setDiasAlerta("");
+        }
+      });
     }
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Cadastrar Tipo de Exame</CardTitle>
+        <CardTitle>{isEditing ? "Editar" : "Cadastrar"} Tipo de Exame</CardTitle>
         <CardDescription>
-          Adicione um novo tipo de exame, como "ASO" ou "Trabalho em Altura".
+          {isEditing ? "Altere as informações do tipo de exame." : "Adicione um novo tipo de exame ao sistema."}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -75,9 +189,12 @@ export const TipoExameForm = () => {
           <Button
             type="submit"
             className="w-full"
-            disabled={createTipoExame.isPending}
+            disabled={createTipoExame.isPending || updateTipoExame.isPending}
           >
-            {createTipoExame.isPending ? "Cadastrando..." : "Cadastrar Tipo de Exame"}
+            {isEditing 
+              ? (updateTipoExame.isPending ? "Salvando..." : "Salvar Alterações")
+              : (createTipoExame.isPending ? "Cadastrando..." : "Cadastrar Tipo de Exame")
+            }
           </Button>
         </form>
       </CardContent>

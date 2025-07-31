@@ -167,3 +167,93 @@ export const useCreateTipoExame = () => {
     },
   });
 };
+
+export const useUpdateTipoExame = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<TipoExame> & { id: string }) => {
+      const { data, error } = await supabase
+        .from('tipos_exames')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tipos-exames'] });
+      toast({ title: "Sucesso", description: "Tipo de exame atualizado com sucesso!" });
+    },
+    onError: (error) => {
+      toast({ title: "Erro", description: `Erro ao atualizar tipo de exame: ${error.message}`, variant: "destructive" });
+    },
+  });
+};
+
+export const useDeleteTipoExame = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await supabase
+        .from('tipos_exames')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tipos-exames'] });
+      toast({ title: "Sucesso", description: "Tipo de exame excluído com sucesso!" });
+    },
+    onError: (error) => {
+      toast({ title: "Erro", description: `Erro ao excluir tipo de exame: ${error.message}`, variant: "destructive" });
+    },
+  });
+};
+
+export const useUpdateExame = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<Exame> & { id: string }) => {
+      const { data, error } = await supabase
+        .from('exames')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['exames'] });
+      queryClient.invalidateQueries({ queryKey: ['exames-proximos-vencimento'] });
+      toast({ title: "Sucesso", description: "Exame atualizado com sucesso!" });
+    },
+    onError: (error) => {
+      toast({ title: "Erro", description: `Erro ao atualizar exame: ${error.message}`, variant: "destructive" });
+    },
+  });
+};
+
+export const useDeleteExame = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await supabase
+        .from('exames')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['exames'] });
+      queryClient.invalidateQueries({ queryKey: ['exames-proximos-vencimento'] });
+      toast({ title: "Sucesso", description: "Exame excluído com sucesso!" });
+    },
+    onError: (error) => {
+      toast({ title: "Erro", description: `Erro ao excluir exame: ${error.message}`, variant: "destructive" });
+    },
+  });
+};

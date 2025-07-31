@@ -1,48 +1,70 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useCreateColaborador } from "@/hooks/useColaboradores";
+import { useCreateColaborador, useUpdateColaborador } from "@/hooks/useColaboradores";
+import { Colaborador } from "@/types/database";
 
-export const ColaboradorForm = () => {
+interface ColaboradorFormProps {
+  colaborador?: Colaborador | null;
+  onFinish?: () => void;
+}
+
+export const ColaboradorForm = ({ colaborador, onFinish }: ColaboradorFormProps) => {
   const [nome, setNome] = useState("");
   const [dataAdmissao, setDataAdmissao] = useState("");
   const [cargo, setCargo] = useState("");
   const [setor, setSetor] = useState("");
 
   const createColaborador = useCreateColaborador();
+  const updateColaborador = useUpdateColaborador();
+
+  const isEditing = !!colaborador;
+
+  useEffect(() => {
+    if (isEditing && colaborador) {
+      setNome(colaborador.nome);
+      setDataAdmissao(colaborador.data_admissao);
+      setCargo(colaborador.cargo || "");
+      setSetor(colaborador.setor || "");
+    }
+  }, [colaborador, isEditing]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!nome || !dataAdmissao) {
-      return;
-    }
+    if (!nome || !dataAdmissao) return;
 
-    createColaborador.mutate({
+    const values = {
       nome,
       data_admissao: dataAdmissao,
       cargo: cargo || undefined,
       setor: setor || undefined,
       ativo: true,
-    });
+    };
 
-    // Limpar formulário após sucesso
-    if (createColaborador.isSuccess) {
-      setNome("");
-      setDataAdmissao("");
-      setCargo("");
-      setSetor("");
+    if (isEditing) {
+      updateColaborador.mutate({ id: colaborador.id, ...values }, {
+        onSuccess: () => onFinish?.()
+      });
+    } else {
+      createColaborador.mutate(values, {
+        onSuccess: () => {
+          setNome("");
+          setDataAdmissao("");
+          setCargo("");
+          setSetor("");
+        }
+      });
     }
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Cadastrar Colaborador</CardTitle>
+        <CardTitle>{isEditing ? "Editar" : "Cadastrar"} Colaborador</CardTitle>
         <CardDescription>
-          Adicione um novo colaborador ao sistema
+          {isEditing ? "Altere as informações do colaborador." : "Adicione um novo colaborador ao sistema."}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -97,9 +119,12 @@ export const ColaboradorForm = () => {
           <Button 
             type="submit" 
             className="w-full"
-            disabled={createColaborador.isPending}
+            disabled={createColaborador.isPending || updateColaborador.isPending}
           >
-            {createColaborador.isPending ? "Cadastrando..." : "Cadastrar Colaborador"}
+            {isEditing 
+              ? (updateColaborador.isPending ? "Salvando..." : "Salvar Alterações")
+              : (createColaborador.isPending ? "Cadastrando..." : "Cadastrar Colaborador")
+            }
           </Button>
         </form>
       </CardContent>

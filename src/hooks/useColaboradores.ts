@@ -89,3 +89,33 @@ export const useUpdateColaborador = () => {
     },
   });
 };
+
+export const useDeleteColaborador = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data, error } = await supabase
+        .from('colaboradores')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['colaboradores'] });
+      toast({
+        title: "Sucesso",
+        description: "Colaborador excluído com sucesso!",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: `Erro ao excluir colaborador: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+};
