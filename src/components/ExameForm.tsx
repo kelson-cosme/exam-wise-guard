@@ -69,8 +69,13 @@ export const ExameForm = ({ exame, onFinish, isRenewal = false }: ExameFormProps
 
   useEffect(() => {
     if (dataRealizacao && validadeDias) {
-      const dataReal = new Date(dataRealizacao);
-      dataReal.setDate(dataReal.getDate() + parseInt(validadeDias, 10) + 1);
+      // CORREÇÃO DA LÓGICA DE DATA:
+      // Adiciona 'T00:00:00' para garantir que a data seja interpretada no fuso horário local, e não em UTC.
+      const dataReal = new Date(`${dataRealizacao}T00:00:00`);
+      
+      // Adiciona os dias de validade à data de realização
+      dataReal.setDate(dataReal.getDate() + parseInt(validadeDias, 10));
+      
       setDataVencimento(dataReal.toISOString().split('T')[0]);
     } else {
       setDataVencimento("");
@@ -158,8 +163,7 @@ export const ExameForm = ({ exame, onFinish, isRenewal = false }: ExameFormProps
               <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                 <Command>
                   <CommandInput placeholder="Pesquisar procedimento..." />
-                  {/* ALTERAÇÃO AQUI */}
-                  <CommandList className="">
+                  <CommandList className="max-h-56">
                     <CommandEmpty>Nenhum procedimento encontrado.</CommandEmpty>
                     <CommandGroup>
                       {procedimentos?.map((proc) => (

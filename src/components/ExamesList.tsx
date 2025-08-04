@@ -10,9 +10,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useExames, useDeleteExame } from "@/hooks/useExames";
 import { Exame, ExameComDetalhes } from "@/types/database";
 import { ExameForm } from "./ExameForm";
-import { Pencil, Trash2, RotateCw, ChevronDown } from "lucide-react"; // Importe o ChevronDown
+import { Pencil, Trash2, RotateCw, ChevronDown } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
+const formatarDataLocal = (dataString: string) => {
+  if (!dataString) return '-';
+  return new Date(`${dataString}T00:00:00`).toLocaleDateString('pt-BR');
+};
 
 const getStatusBadge = (status: string, diasParaVencer: number, isHistorico: boolean = false) => {
   if (isHistorico) {
@@ -60,18 +64,44 @@ export const ExamesList = () => {
     deleteExame.mutate(id);
   };
 
+  // LÓGICA CORRIGIDA QUE CONSIDERA OS PROCEDIMENTOS
   const separarExames = (listaDeExames: ExameComDetalhes[]) => {
     const maisRecentesMap = new Map<string, ExameComDetalhes>();
+
     listaDeExames.forEach(exame => {
-      const existente = maisRecentesMap.get(exame.tipo_exame_id);
+      // Cria uma chave única para cada tipo de exame/certificado.
+      let uniqueKey = exame.tipo_exame_id;
+      
+      // Se for um "Certificado", a chave única é composta pelo tipo + os procedimentos.
+      if (exame.tipo_exame_nome === 'Certificado' && exame.procedimentos && exame.procedimentos.length > 0) {
+        // Ordena os IDs dos procedimentos para garantir que a chave seja sempre a mesma,
+        // independentemente da ordem em que foram selecionados.
+        const procedureKey = exame.procedimentos.map(p => p.id).sort().join('-');
+        uniqueKey = `${exame.tipo_exame_id}-${procedureKey}`;
+      }
+
+      const existente = maisRecentesMap.get(uniqueKey);
+
+      // Armazena apenas o exame mais recente para cada chave única.
       if (!existente || new Date(exame.data_vencimento) > new Date(existente.data_vencimento)) {
-        maisRecentesMap.set(exame.tipo_exame_id, exame);
+        maisRecentesMap.set(uniqueKey, exame);
       }
     });
+
     const examesAtivos = Array.from(maisRecentesMap.values());
     const idsDosAtivos = new Set(examesAtivos.map(e => e.id));
+    // O histórico são todos os exames que não estão na lista de mais recentes.
     const examesHistorico = listaDeExames.filter(e => !idsDosAtivos.has(e.id));
+
     return { examesAtivos, examesHistorico };
+  };
+
+  const formatarNomeExame = (exame: ExameComDetalhes) => {
+    if (exame.tipo_exame_nome === 'Certificado' && exame.procedimentos && exame.procedimentos.length > 0) {
+      const nomesProcedimentos = exame.procedimentos.map(p => p.nome).join(', ');
+      return `Certificado (${nomesProcedimentos})`;
+    }
+    return exame.tipo_exame_nome;
   };
 
   const renderExamesTable = (listaExames: ExameComDetalhes[], isHistorico: boolean = false) => (
@@ -103,11 +133,11 @@ export const ExamesList = () => {
                       </CollapsibleTrigger>
                     )}
                   </TableCell>
-                  <TableCell>{exame.tipo_exame_nome}</TableCell>
+                  <TableCell>{formatarNomeExame(exame)}</TableCell>
                   <TableCell>{exame.natureza || '-'}</TableCell>
-                  <TableCell>{new Date(exame.data_realizacao).toLocaleDateString('pt-BR')}</TableCell>
-                  <TableCell>{new Date(exame.data_vencimento).toLocaleDateString('pt-BR')}</TableCell>
-                  <TableCell>{getStatusBadge(exame.status, exame.dias_para_vencer, isHistorico)}</TableCell>
+                  <TableCell>{formatarDataLocal(exame.data_realizacao)}</TableCell>
+                  <TableCell>{formatarDataLocal(exame.data_vencimento)}</TableCell>
+                  <TableCell>{getStatusBadge(exame.status, (exame as ExameComDetalhes).dias_para_vencer, isHistorico)}</TableCell>
                   <TableCell className="text-right space-x-2">
                     <Button variant="outline" size="icon" onClick={() => handleRenew(exame)} title="Renovar Exame"><RotateCw className="h-4 w-4" /></Button>
                     <Button variant="outline" size="icon" onClick={() => handleEdit(exame)} title="Editar Exame"><Pencil className="h-4 w-4" /></Button>
@@ -128,7 +158,7 @@ export const ExamesList = () => {
                         <div className="flex flex-wrap gap-2">
                           {exame.procedimentos && exame.procedimentos.length > 0 ? (
                             exame.procedimentos.map(proc => (
-                              <Badge key={proc.id} variant="secondary" className="bg-green-600 text-white">{proc.nome}</Badge>
+                              <Badge key={proc.id} variant="secondary" className="bg-green-600">{proc.nome}</Badge>
                             ))
                           ) : (
                             <p className="text-sm text-muted-foreground">Nenhum procedimento vinculado a este exame.</p>

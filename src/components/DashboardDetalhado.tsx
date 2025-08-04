@@ -56,15 +56,22 @@ export const DashboardDetalhado = () => {
         <CardDescription>
           Visão geral da validade dos procedimentos realizados por cada colaborador.
         </CardDescription>
+
+        <div className="flex justify-end items-center space-x-4 mb-4 text-sm text-muted-foreground">
+            <div className="flex items-center"><div className="h-3 w-3 rounded-full bg-green-500 mr-2"></div>Exames em dia</div>
+            <div className="flex items-center"><div className="h-3 w-3 rounded-full bg-yellow-500 mr-2"></div>Exames a vencer</div>
+            <div className="flex items-center"><div className="h-3 w-3 rounded-full bg-red-500 mr-2"></div>Exames vencidos</div>
+          </div>
+
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto border rounded-lg">
           <Table className="min-w-full divide-y divide-gray-200 border-collapse">
             <TableHeader className="bg-muted/50">
-              <TableRow>
-                <TableHead className="sticky left-0 bg-muted/50 z-10 border-b border-r w-48 whitespace-nowrap">Colaborador</TableHead>
+              <TableRow className="bg-green-600 hover:bg-green-800">
+                <TableHead className="sticky left-0 bg-muted/50 z-10 border-b border-r w-48 whitespace-nowrap text-white">Colaborador</TableHead>
                 {procedimentos?.map(proc => (
-                  <TableHead key={proc.id} className="text-center border-b border-r" colSpan={2}>{proc.nome}</TableHead>
+                  <TableHead key={proc.id} className="text-center border-b border-r text-white" colSpan={2}>{proc.nome}</TableHead>
                 ))}
               </TableRow>
               <TableRow>
