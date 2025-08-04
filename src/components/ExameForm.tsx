@@ -42,7 +42,7 @@ export const ExameForm = ({ exame, onFinish, isRenewal = false }: ExameFormProps
 
   const isEditing = !!exame && !isRenewal;
 
-  const naturezasExame = ["Admissional", "Demissional", "Retorno ao Trabalho", "Mudança de Risco/Cargo", "Periódico"];
+  const naturezasExame = ["Admissional", "Demissional", "Retorno ao Trabalho", "Mudança de Risco/Cargo", "Periódico", "Certificado"];
 
   useEffect(() => {
     if (exame) {
