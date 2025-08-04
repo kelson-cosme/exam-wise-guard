@@ -11,12 +11,21 @@ const SMTP_HOST = 'mail.altmaindustrial.com.br';
 const SMTP_PORT = 465;
 const SMTP_USER = 'ti@altmaindustrial.com.br';
 
-// ALTERAÇÃO AQUI: Transforme a constante em uma lista de e-mails
 const EMAIL_RECIPIENT = [
-  'adm@altmaindustrial.com.br',
+  //'adm@altmaindustrial.com.br',
   'kelson.almeida123@gmail.com',
   'ti@altmaindustrial.com.br'
 ];
+
+// Função para formatar o nome do exame/certificado
+const formatarNomeExame = (exame: any) => {
+  const tipoNome = exame.tipos_exames?.nome;
+  if (tipoNome === 'Certificado' && exame.procedimentos && exame.procedimentos.length > 0) {
+    const nomesProcedimentos = exame.procedimentos.map((p: any) => p.nome).join(', ');
+    return `Certificado (${nomesProcedimentos})`;
+  }
+  return tipoNome || 'N/A';
+};
 
 serve(async (_req) => {
   try {
@@ -24,11 +33,16 @@ serve(async (_req) => {
     if (!smtpPassword) {
       throw new Error("A variável de ambiente SMTP_PASSWORD não está configurada.");
     }
-    
-    // 1. Buscar exames
+
+    // 1. Buscar exames e seus procedimentos relacionados
     const { data: exames, error } = await supabase
       .from('exames')
-      .select('data_vencimento, colaboradores (nome), tipos_exames (nome)')
+      .select(`
+        data_vencimento,
+        colaboradores (nome),
+        tipos_exames (nome),
+        procedimentos (nome)
+      `)
       .in('status', ['vencido', 'próximo_vencimento'])
       .order('data_vencimento');
 
@@ -58,7 +72,7 @@ serve(async (_req) => {
           ${exames.map(exame => `
             <tr>
               <td>${exame.colaboradores?.nome || 'N/A'}</td>
-              <td>${exame.tipos_exames?.nome || 'N/A'}</td>
+              <td>${formatarNomeExame(exame)}</td>
               <td>${new Date(exame.data_vencimento).toLocaleDateString('pt-BR')}</td>
             </tr>
           `).join('')}
@@ -71,7 +85,7 @@ serve(async (_req) => {
     const transporter = nodemailer.createTransport({
       host: SMTP_HOST,
       port: SMTP_PORT,
-      secure: true, // true para a porta 465, false para outras
+      secure: true,
       auth: {
         user: SMTP_USER,
         pass: smtpPassword,
@@ -81,7 +95,7 @@ serve(async (_req) => {
     // 4. Enviar o e-mail
     await transporter.sendMail({
       from: `Exames Altma Industrial <${SMTP_USER}>`,
-      to: EMAIL_RECIPIENT.join(', '), // Envia para a lista de e-mails
+      to: EMAIL_RECIPIENT.join(', '),
       subject: "Alerta: Exames Vencendo",
       html: emailHtml,
     });

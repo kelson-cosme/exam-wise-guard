@@ -65,11 +65,11 @@ export const DashboardDetalhado = () => {
 
       </CardHeader>
       <CardContent>
-        <div className="overflow-x-auto border rounded-lg">
-          <Table className="min-w-full divide-y divide-gray-200 border-collapse">
+        <div className="overflow-x-auto border rounded-lg max-h-[100vh] overflow-y-auto">
+          <Table className="min-w-full divide-y divide-gray-200 border-collapse ">
             <TableHeader className="bg-muted/50">
-              <TableRow className="bg-green-600 hover:bg-green-800">
-                <TableHead className="sticky left-0 bg-muted/50 z-10 border-b border-r w-48 whitespace-nowrap text-white">Colaborador</TableHead>
+              <TableRow className="bg-green-600 hover:bg-green-800 sticky top-0">
+                <TableHead className="sticky left-0 bg-green-800 z-10 border-b border-r w-48 whitespace-nowrap text-white">Colaborador</TableHead>
                 {procedimentos?.map(proc => (
                   <TableHead key={proc.id} className="text-center border-b border-r text-white" colSpan={2}>{proc.nome}</TableHead>
                 ))}
