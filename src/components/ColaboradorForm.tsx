@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCreateColaborador, useUpdateColaborador } from "@/hooks/useColaboradores";
+import { useProfile } from "@/hooks/useProfile"; // 1. Importar o hook de perfil
 import { Colaborador } from "@/types/database";
 
 interface ColaboradorFormProps {
@@ -19,6 +20,7 @@ export const ColaboradorForm = ({ colaborador, onFinish }: ColaboradorFormProps)
 
   const createColaborador = useCreateColaborador();
   const updateColaborador = useUpdateColaborador();
+  const { data: profile } = useProfile(); // 2. Buscar o perfil do utilizador logado
 
   const isEditing = !!colaborador;
 
@@ -33,7 +35,11 @@ export const ColaboradorForm = ({ colaborador, onFinish }: ColaboradorFormProps)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nome || !dataAdmissao) return;
+    // 3. Garantir que temos o ID da empresa antes de salvar
+    if (!nome || !dataAdmissao || !profile?.empresa_id) {
+        console.error("ID da empresa não encontrado!");
+        return;
+    };
 
     const values = {
       nome,
@@ -41,10 +47,13 @@ export const ColaboradorForm = ({ colaborador, onFinish }: ColaboradorFormProps)
       cargo: cargo || undefined,
       setor: setor || undefined,
       ativo: true,
+      empresa_id: profile.empresa_id, // 4. Adicionar o ID da empresa ao novo colaborador
     };
 
     if (isEditing) {
-      updateColaborador.mutate({ id: colaborador.id, ...values }, {
+      // O empresa_id não precisa ser atualizado, então podemos removê-lo
+      const { empresa_id, ...updateValues } = values;
+      updateColaborador.mutate({ id: colaborador.id, ...updateValues }, {
         onSuccess: () => onFinish?.()
       });
     } else {

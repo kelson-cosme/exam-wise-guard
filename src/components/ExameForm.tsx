@@ -11,9 +11,10 @@ import { Badge } from "@/components/ui/badge";
 import { useCreateExame, useUpdateExame, useTiposExames } from "@/hooks/useExames";
 import { useColaboradores } from "@/hooks/useColaboradores";
 import { useProcedimentos } from "@/hooks/useProcedimentos";
-import { Exame, Procedimento } from "@/types/database";
-import { Check, ChevronsUpDown, X } from "lucide-react";
+import { Exame } from "@/types/database";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useProfile } from "@/hooks/useProfile";
 
 
 interface ExameFormProps {
@@ -37,6 +38,7 @@ export const ExameForm = ({ exame, onFinish, isRenewal = false }: ExameFormProps
   const { data: colaboradores } = useColaboradores();
   const { data: tiposExames } = useTiposExames();
   const { data: procedimentos } = useProcedimentos();
+  const { data: profile } = useProfile();
   const createExame = useCreateExame();
   const updateExame = useUpdateExame();
 
@@ -69,13 +71,8 @@ export const ExameForm = ({ exame, onFinish, isRenewal = false }: ExameFormProps
 
   useEffect(() => {
     if (dataRealizacao && validadeDias) {
-      // CORREÇÃO DA LÓGICA DE DATA:
-      // Adiciona 'T00:00:00' para garantir que a data seja interpretada no fuso horário local, e não em UTC.
       const dataReal = new Date(`${dataRealizacao}T00:00:00`);
-      
-      // Adiciona os dias de validade à data de realização
       dataReal.setDate(dataReal.getDate() + parseInt(validadeDias, 10));
-      
       setDataVencimento(dataReal.toISOString().split('T')[0]);
     } else {
       setDataVencimento("");
@@ -84,11 +81,16 @@ export const ExameForm = ({ exame, onFinish, isRenewal = false }: ExameFormProps
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!colaboradorId || !tipoExameId || !natureza || !dataRealizacao || !dataVencimento || !validadeDias) return;
+    if (!colaboradorId || !tipoExameId || !natureza || !dataRealizacao || !dataVencimento || !validadeDias || !profile?.empresa_id) {
+      console.error("Perfil do usuário ou ID da empresa não encontrado!");
+      return;
+    };
+
     const values = {
       colaborador_id: colaboradorId,
       tipo_exame_id: tipoExameId,
       natureza: natureza,
+      empresa_id: profile.empresa_id,
       data_realizacao: dataRealizacao,
       data_vencimento: dataVencimento,
       validade_dias: parseInt(validadeDias, 10),
