@@ -8,6 +8,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle } from 'lucide-react';
 
+import Logo from "@/img/logoFinal.png"
+import Rebrand from "@/img/rebrand.png"
+
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -36,9 +39,16 @@ const Login = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
-      <Card className="w-full max-w-md">
-        <CardHeader>
+    <div className="flex justify-end min-h-screen bg-background ">
+
+      <div className=' w-full flex justify-center items-center '>
+        <img src={Rebrand} alt="" className='absolute bottom-0 left-0 max-w-[60vh]'/>
+        <img src={Logo} alt="" className='max-w-[80vh]'/>
+      </div>
+
+      <Card className="min-h-screen w-[45%]   flex flex-col justify-center">
+      {/* <Card className="w-full max-w-md  bg-red-600"> */}
+        <CardHeader className=''>
           <CardTitle className="text-2xl">Login</CardTitle>
           <CardDescription>
             Acesse sua conta para gerenciar os exames.
