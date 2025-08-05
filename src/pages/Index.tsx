@@ -11,6 +11,7 @@ import { DashboardDetalhado } from "@/components/DashboardDetalhado";
 import { ProcedimentoForm } from "@/components/ProcedimentoForm"; // Importe os novos componentes
 import { cn } from "@/lib/utils";
 import { ProcedimentosList } from "@/components/ProcedimentosList";
+import { ConfiguracoesEmail } from "@/components/ConfiguracoesEmail";
 
 const Index = () => {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -49,6 +50,8 @@ const Index = () => {
         );
       default:
         return <Dashboard />;
+        case 'configuracoes':
+          return <ConfiguracoesEmail />;
     }
   };
 

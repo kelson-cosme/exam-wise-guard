@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Home, Users, FileText, Calendar, Menu, X, Settings, LayoutDashboard, ChevronsLeft, ClipboardList, Stethoscope, LogOut } from "lucide-react";
+import { Home, Users, FileText, Calendar, Menu, X, Settings, LayoutDashboard, ChevronsLeft, ClipboardList, Stethoscope, LogOut, Settings2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useProfile } from "@/hooks/useProfile"; // 1. Importar o hook de perfil
 import { supabase } from "@/integrations/supabase/client"; // 2. Importar o cliente supabase para o logout
@@ -27,6 +27,7 @@ export const Navigation = ({ currentView, onViewChange, isCollapsed, toggleColla
     { id: 'lista-exames', label: 'Lista de Exames', icon: Calendar },
     { id: 'tipos-exames', label: 'Tipos de Exame', icon: Settings },
     { id: 'procedimentos', label: 'Procedimentos', icon: ClipboardList },
+    { id: 'configuracoes', label: 'Configurações', icon: Settings2 }, // Adicione esta linha
   ];
 
   const handleViewChange = (view: string) => {
