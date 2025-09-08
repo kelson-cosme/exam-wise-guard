@@ -1,6 +1,12 @@
 # 🛡️ Exam Wise Guard - Sistema de Gestão de Exames
 
 Exam Wise Guard é uma aplicação web completa para a gestão de exames, certificados e procedimentos de saúde e segurança ocupacional para colaboradores de múltiplas empresas. A plataforma oferece uma visão clara e organizada dos vencimentos, históricos e custos, com um sistema de notificação automática para garantir a conformidade.
+<img width="1364" height="634" alt="image" src="https://github.com/user-attachments/assets/89d66354-faba-4684-8090-b3739ca614f2" />
+<img width="1362" height="627" alt="image" src="https://github.com/user-attachments/assets/e3424f40-9706-4c1e-bfbd-72679f842100" />
+<img width="1340" height="631" alt="image" src="https://github.com/user-attachments/assets/f683c411-3ca5-44cb-9d0e-b9cd2447741c" />
+
+
+
 
 ## ✨ Funcionalidades Principais
 
