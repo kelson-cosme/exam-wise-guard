@@ -21,15 +21,30 @@ export const useExames = () => {
       
       if (error) throw error;
       
-      const examesComDetalhes: ExameComDetalhes[] = data.map(exame => {
+    const examesComDetalhes: ExameComDetalhes[] = data.map(exame => {
         const dataVencimento = new Date(exame.data_vencimento);
         const hoje = new Date();
-        const diffTime = dataVencimento.getTime() - hoje.getTime();
+        // Zera as horas para comparar apenas as datas
+        hoje.setHours(0, 0, 0, 0);
+        const vencimento = new Date(dataVencimento);
+        vencimento.setHours(0, 0, 0, 0);
+
+        const diffTime = vencimento.getTime() - hoje.getTime();
         const diasParaVencer = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        const diasAlerta = exame.tipos_exames?.dias_alerta || 30; // Default para 30 dias se não definido
+        
+        let status: 'válido' | 'vencido' | 'próximo_vencimento' = 'válido';
+        
+        if (diasParaVencer < 0) {
+          status = 'vencido';
+        } else if (diasParaVencer <= diasAlerta) {
+          status = 'próximo_vencimento';
+        }
         
         return { 
           ...exame,
-          status: exame.status as 'válido' | 'vencido' | 'próximo_vencimento',
+          status: status,
           colaborador_nome: exame.colaboradores?.nome || '',
           tipo_exame_nome: exame.tipos_exames?.nome || '',
           dias_para_vencer: diasParaVencer,
